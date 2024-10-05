@@ -18,22 +18,22 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
-    @GetMapping("/product/{id}")
+    @GetMapping("/products/{id}")
     public Product getProduct(@PathVariable("id") Long productId) {
         return productService.getProduct(productId);
     }
 
-    @PostMapping("/product")
+    @PostMapping("/products")
     public Product createProduct(Product product) {
         return null;
     }
 
-    @PatchMapping("/product/{id}")
+    @PatchMapping("/producst/{id}")
     public Product updateProduct(@PathVariable("id") Long id, Product product) {
         return null;
     }
 
-    @DeleteMapping("/product/{id}")
+    @DeleteMapping("/products/{id}")
     public void deleteProduct(@PathVariable("id") Long id) {
     }
 }

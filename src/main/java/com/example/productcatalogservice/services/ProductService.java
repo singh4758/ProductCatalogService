@@ -30,8 +30,10 @@ public class ProductService implements IProductService {
     public Product getProduct(Long productId) {
         RestTemplate restTemplate = restTemplateBuilder.build();
         FakeStoreProductDto fakeStoreProductDto = restTemplate
-                .getForEntity("https://fakesstoreapi.com/products/{id}", FakeStoreProductDto.class, productId)
+                .getForEntity("https://fakestoreapi.com/products/{id}", FakeStoreProductDto.class, productId)
                 .getBody();
+
+        System.out.println(fakeStoreProductDto);
 
         return getProduct(fakeStoreProductDto);
     }
@@ -49,7 +51,7 @@ public class ProductService implements IProductService {
     private Product getProduct(FakeStoreProductDto fakeStoreProductDto) {
         Product product = new Product();
         product.setId(fakeStoreProductDto.getId());
-        product.setName(fakeStoreProductDto.getName());
+        product.setName(fakeStoreProductDto.getTitle());
         product.setPrice(fakeStoreProductDto.getPrice());
         product.setImageUrl(fakeStoreProductDto.getImageUrl());
         Category category = new Category();
