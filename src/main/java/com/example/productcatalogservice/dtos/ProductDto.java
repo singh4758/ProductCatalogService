@@ -12,5 +12,6 @@ public class ProductDto {
     private Long id;
     private String name;
     private String description;
-    private List<Category> categories;
+    private String category;
+    private Integer price;
 }

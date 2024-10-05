@@ -53,7 +53,8 @@ public class ProductService implements IProductService {
         product.setId(fakeStoreProductDto.getId());
         product.setName(fakeStoreProductDto.getTitle());
         product.setPrice(fakeStoreProductDto.getPrice());
-        product.setImageUrl(fakeStoreProductDto.getImageUrl());
+        product.setImageUrl(fakeStoreProductDto.getImage());
+        product.setDescription(fakeStoreProductDto.getDescription());
         Category category = new Category();
         category.setName(fakeStoreProductDto.getCategory());
         product.setCategory(category);
