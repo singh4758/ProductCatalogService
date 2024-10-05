@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -16,9 +17,10 @@ public class ProductController {
     @Autowired
     IProductService productService;
 
-    @GetMapping("/product")
+    @GetMapping("/products")
     public List<ProductDto> getAllProduct() {
-        return null;
+        List<Product> productList = productService.getAllProducts();
+        return getProductDtoList(productList);
     }
 
     @GetMapping("/products/{id}")
@@ -39,7 +41,7 @@ public class ProductController {
         return null;
     }
 
-    @PatchMapping("/producst/{id}")
+    @PatchMapping("/products/{id}")
     public ProductDto updateProduct(@PathVariable("id") Long id, Product product) {
         return null;
     }
@@ -59,5 +61,22 @@ public class ProductController {
         productDto.setName(product.getName());
 
         return productDto;
+    }
+
+    private List<ProductDto> getProductDtoList(List<Product> productList) {
+        List<ProductDto> productDtoList = new ArrayList<>();
+        for (Product product: productList) {
+            ProductDto productDto = new ProductDto();
+            productDto.setDescription(product.getDescription());
+            productDto.setId(product.getId());
+            productDto.setId(productDto.getId());
+            productDto.setCategory(product.getCategory().getName());
+            productDto.setPrice(product.getPrice());
+            productDto.setName(product.getName());
+
+            productDtoList.add(productDto);
+        }
+
+        return productDtoList;
     }
 }
