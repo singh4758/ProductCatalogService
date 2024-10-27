@@ -6,6 +6,8 @@ import com.example.productcatalogservice.services.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -18,27 +20,27 @@ public class ProductController {
     IProductService productService;
 
     @GetMapping("/products")
-    public List<ProductDto> getAllProduct() {
+    public List<Product> getAllProduct() {
         List<Product> productList = productService.getAllProducts();
-        return getProductDtoList(productList);
+        return productList;
     }
 
     @GetMapping("/products/{id}")
     public ResponseEntity<ProductDto> getProduct(@PathVariable("id") Long productId) {
-        try{
+        MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+
             if(productId < 1) {
+                headers.add("called by", "pagal frontend");
                 throw new IllegalArgumentException("ProductId is not valid");
             }
+            headers.add("called by", "smart frontend");
             Product product = productService.getProduct(productId);
-            return new ResponseEntity<>(getProductDto(product), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+            return new ResponseEntity<>(getProductDto(product), headers, HttpStatus.OK);
     }
 
     @PostMapping("/products")
-    public ProductDto createProduct(Product product) {
-        return null;
+    public ProductDto createProduct(@RequestBody Product product) {
+        return getProductDto(productService.createProduct(product));
     }
 
     @PatchMapping("/products/{id}")
@@ -56,7 +58,9 @@ public class ProductController {
         productDto.setDescription(product.getDescription());
         productDto.setId(product.getId());
         productDto.setId(productDto.getId());
-        productDto.setCategory(product.getCategory().getName());
+        if(product.getCategory() != null) {
+            productDto.setCategory(product.getCategory().getName());
+        }
         productDto.setPrice(product.getPrice());
         productDto.setName(product.getName());
 
@@ -70,7 +74,9 @@ public class ProductController {
             productDto.setDescription(product.getDescription());
             productDto.setId(product.getId());
             productDto.setId(productDto.getId());
-            productDto.setCategory(product.getCategory().getName());
+            if(product.getCategory() != null) {
+                productDto.setCategory(product.getCategory().getName());
+            }
             productDto.setPrice(product.getPrice());
             productDto.setName(product.getName());
 

@@ -5,7 +5,10 @@ import com.example.productcatalogservice.models.Category;
 import com.example.productcatalogservice.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -42,8 +45,14 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product addProduct(Product product) {
-        return null;
+    public Product createProduct(Product product) {
+        RestTemplate restTemplate = restTemplateBuilder.build();
+        FakeStoreProductDto fakeStoreProductDto = restTemplate
+                .postForEntity("https://fakestoreapi.com/products", getFakerProductDto(product), FakeStoreProductDto.class)
+                .getBody();
+
+        System.out.print(fakeStoreProductDto);
+        return getProduct(fakeStoreProductDto);
     }
 
     @Override
@@ -81,5 +90,18 @@ public class ProductService implements IProductService {
         }
 
         return productList;
+    }
+
+    private FakeStoreProductDto getFakerProductDto(Product product) {
+        FakeStoreProductDto fakeStoreProductDto = new FakeStoreProductDto();
+        if(product.getCategory() != null) {
+            fakeStoreProductDto.setCategory(product.getCategory().getName());
+        }
+        fakeStoreProductDto.setDescription((product.getDescription()));
+        fakeStoreProductDto.setPrice(product.getPrice());
+        fakeStoreProductDto.setImage(product.getImageUrl());
+        fakeStoreProductDto.setTitle(product.getName());
+
+        return fakeStoreProductDto;
     }
 }
