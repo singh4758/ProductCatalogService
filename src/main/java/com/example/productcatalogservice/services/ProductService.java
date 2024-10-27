@@ -5,10 +5,16 @@ import com.example.productcatalogservice.models.Category;
 import com.example.productcatalogservice.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.RequestCallback;
+import org.springframework.web.client.ResponseExtractor;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -51,13 +57,29 @@ public class ProductService implements IProductService {
                 .postForEntity("https://fakestoreapi.com/products", getFakerProductDto(product), FakeStoreProductDto.class)
                 .getBody();
 
-        System.out.print(fakeStoreProductDto);
         return getProduct(fakeStoreProductDto);
     }
 
+    private static <T> T nonNull(@Nullable T result) {
+        Assert.state(result != null, "No result");
+        return result;
+    }
+
+    private <T> ResponseEntity<T> putForEntity(String url, @Nullable Object request,
+                                               Class<T> responseType, Object... uriVariables) throws RestClientException {
+        RestTemplate restTemplate = restTemplateBuilder.build();
+        RequestCallback requestCallback = restTemplate.httpEntityCallback(request, responseType);
+        ResponseExtractor<ResponseEntity<T>> responseExtractor = restTemplate.responseEntityExtractor(responseType);
+        return nonNull(restTemplate.execute(url, HttpMethod.PUT, requestCallback, responseExtractor, uriVariables));
+    }
+
     @Override
-    public Product updateProduct(Product product) {
-        return null;
+    public Product updateProduct(Product product, Long productId) {
+        RestTemplate restTemplate = restTemplateBuilder.build();
+        FakeStoreProductDto fakeStoreProductDto =
+                this.putForEntity("https://fakestoreapi.com/products/{id}", getFakerProductDto(product), FakeStoreProductDto.class, productId)
+                .getBody();
+        return getProduct(fakeStoreProductDto);
     }
 
     private Product getProduct(FakeStoreProductDto fakeStoreProductDto) {

@@ -43,9 +43,9 @@ public class ProductController {
         return getProductDto(productService.createProduct(product));
     }
 
-    @PatchMapping("/products/{id}")
-    public ProductDto updateProduct(@PathVariable("id") Long id, Product product) {
-        return null;
+    @PutMapping("/products/{id}")
+    public ProductDto updateProduct(@PathVariable("id") Long id,@RequestBody Product product) {
+        return getProductDto(productService.updateProduct(product, id));
     }
 
     @DeleteMapping("/products/{id}")
