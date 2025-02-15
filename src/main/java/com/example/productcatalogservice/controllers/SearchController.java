@@ -7,6 +7,7 @@ import com.example.productcatalogservice.models.Product;
 import com.example.productcatalogservice.services.ISearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,8 +24,13 @@ public class SearchController {
     private ISearchService searchService;
 
     @PostMapping
-    public Page<Product> searchProducts(@RequestBody SearchRequestDto searchRequestDto) {
-        return searchService.searchProducts(searchRequestDto.getQuery(), searchRequestDto.getPageNumber(), searchRequestDto.getPageSize());
+    public Page<ProductDto> searchProducts(@RequestBody SearchRequestDto searchRequestDto) {
+        Page<Product> productsResult = searchService.searchProducts(searchRequestDto.getQuery(), searchRequestDto.getPageNumber(), searchRequestDto.getPageSize(), searchRequestDto.getSortParams());
+        List<ProductDto> productDtos = getProductDtoList(productsResult.getContent());
+
+        Page<ProductDto> productDtoPage = new PageImpl<>(productDtos, productsResult.getPageable(), productsResult.getTotalElements());
+
+        return productDtoPage;
     }
 
     private List<ProductDto> getProductDtoList(List<Product> productList) {
