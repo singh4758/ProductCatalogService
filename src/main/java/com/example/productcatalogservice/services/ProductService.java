@@ -1,9 +1,12 @@
 package com.example.productcatalogservice.services;
 
 import com.example.productcatalogservice.dtos.FakeStoreProductDto;
+import com.example.productcatalogservice.dtos.UserDto;
 import com.example.productcatalogservice.models.Category;
 import com.example.productcatalogservice.models.Product;
+import com.example.productcatalogservice.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -25,6 +28,10 @@ public class ProductService implements IProductService {
 
     @Autowired
     private RestTemplateBuilder restTemplateBuilder;
+    @Autowired
+    private ProductRepository productRepository;
+    @Value("${userServiceUrl}")
+    private String userServiceUrl;
 
     @Override
     public List<Product> getAllProducts() {
@@ -58,6 +65,19 @@ public class ProductService implements IProductService {
                 .getBody();
 
         return getProduct(fakeStoreProductDto);
+    }
+
+    @Override
+    public Product getProductDetails(Long productId, Long userId) {
+        RestTemplate restTemplate = new RestTemplate();
+        UserDto userDto = restTemplate.getForEntity(userServiceUrl+"/users/{uid}", UserDto.class, userId).getBody();
+        System.out.println("USER EMAIL"+ userDto.getEmail());
+        if(userDto != null) {
+            Product product = productRepository.findById(productId).get();
+            return product;
+        }
+
+        return null;
     }
 
     private static <T> T nonNull(@Nullable T result) {

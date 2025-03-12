@@ -19,6 +19,13 @@ public class ProductController {
     @Autowired
     IProductService productService;
 
+    @GetMapping("/{pid}/{uid}")
+    public ResponseEntity<ProductDto> getProductDetailsBasedOnUserScope(@PathVariable Long pid, @PathVariable Long uid) {
+        Product product = productService.getProductDetails(pid, uid);
+
+        return new ResponseEntity<>(getProductDto(product), HttpStatus.OK);
+    }
+
     @GetMapping("/products")
     public List<Product> getAllProduct() {
         List<Product> productList = productService.getAllProducts();
