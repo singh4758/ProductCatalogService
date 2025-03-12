@@ -1,5 +1,6 @@
 package com.example.productcatalogservice.services;
 
+import com.example.productcatalogservice.client.FakeStore.FakeStoreApiClient;
 import com.example.productcatalogservice.dtos.FakeStoreProductDto;
 import com.example.productcatalogservice.dtos.UserDto;
 import com.example.productcatalogservice.models.Category;
@@ -25,20 +26,16 @@ import java.util.List;
 
 @Service
 public class ProductService implements IProductService {
-
-    @Autowired
-    private RestTemplateBuilder restTemplateBuilder;
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private FakeStoreApiClient fakeStoreApiClient;
     @Value("${userServiceUrl}")
     private String userServiceUrl;
 
     @Override
     public List<Product> getAllProducts() {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        FakeStoreProductDto[] fakeStoreProductDtos = restTemplate
-                .getForEntity("https://fakestoreapi.com/products", FakeStoreProductDto[].class)
-                .getBody();
+        FakeStoreProductDto[] fakeStoreProductDtos = fakeStoreApiClient.getAllProducts();
         return getProducts(fakeStoreProductDtos);
     }
 
@@ -49,20 +46,14 @@ public class ProductService implements IProductService {
 
     @Override
     public Product getProduct(Long productId) {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        FakeStoreProductDto fakeStoreProductDto = restTemplate
-                .getForEntity("https://fakestoreapi.com/products/{id}", FakeStoreProductDto.class, productId)
-                .getBody();
+        FakeStoreProductDto fakeStoreProductDto = fakeStoreApiClient.getProduct(productId);
 
         return getProduct(fakeStoreProductDto);
     }
 
     @Override
     public Product createProduct(Product product) {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        FakeStoreProductDto fakeStoreProductDto = restTemplate
-                .postForEntity("https://fakestoreapi.com/products", getFakerProductDto(product), FakeStoreProductDto.class)
-                .getBody();
+        FakeStoreProductDto fakeStoreProductDto = fakeStoreApiClient.createProduct(getFakerProductDto(product));
 
         return getProduct(fakeStoreProductDto);
     }
@@ -80,25 +71,10 @@ public class ProductService implements IProductService {
         return null;
     }
 
-    private static <T> T nonNull(@Nullable T result) {
-        Assert.state(result != null, "No result");
-        return result;
-    }
-
-    private <T> ResponseEntity<T> putForEntity(String url, @Nullable Object request,
-                                               Class<T> responseType, Object... uriVariables) throws RestClientException {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        RequestCallback requestCallback = restTemplate.httpEntityCallback(request, responseType);
-        ResponseExtractor<ResponseEntity<T>> responseExtractor = restTemplate.responseEntityExtractor(responseType);
-        return nonNull(restTemplate.execute(url, HttpMethod.PUT, requestCallback, responseExtractor, uriVariables));
-    }
 
     @Override
     public Product updateProduct(Product product, Long productId) {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        FakeStoreProductDto fakeStoreProductDto =
-                this.putForEntity("https://fakestoreapi.com/products/{id}", getFakerProductDto(product), FakeStoreProductDto.class, productId)
-                .getBody();
+        FakeStoreProductDto fakeStoreProductDto = fakeStoreApiClient.updateProduct(getFakerProductDto(product), productId);
         return getProduct(fakeStoreProductDto);
     }
 
